@@ -9,6 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|fontScale|screenLayout|smallestScreenSize|density|navigation|layoutDirection|locale|touchscreen"
             >
             <intent-filter>

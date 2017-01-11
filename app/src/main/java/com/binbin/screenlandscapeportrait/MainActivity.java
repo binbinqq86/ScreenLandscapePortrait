@@ -13,9 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,15 +36,22 @@ public class MainActivity extends AppCompatActivity {
     private FragmentPagerAdapter adapter;
     private Fragment1 fragment1;
     private Fragment2 fragment2;
+    private FrameLayout frameLayout;
+    private LayoutInflater inflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        setContentView(R.layout.activity_main);
-        tv1 = (TextView) findViewById(R.id.tv1);
-        tv2 = (TextView) findViewById(R.id.tv2);
-        tv3 = (TextView) findViewById(R.id.tv3);
+        frameLayout=new FrameLayout(this);
+        inflater=LayoutInflater.from(this);
+        View content=inflater.inflate(R.layout.activity_main,null);
+        frameLayout.addView(content,new FrameLayout.LayoutParams(-1,-1));
+        setContentView(frameLayout);
+        AndroidBug5497Workaround.assistActivity(this);
+        tv1 = (TextView) content.findViewById(R.id.tv1);
+        tv2 = (TextView) content.findViewById(R.id.tv2);
+        tv3 = (TextView) content.findViewById(R.id.tv3);
         mySensorEventListener = new MySensorEventListener(getApplicationContext(), SensorManager.SENSOR_DELAY_FASTEST);
         mySensorEventListener.enable();
         Log.e("tianbin","=========onCreate===========");
@@ -53,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        vp= (ViewPager) findViewById(R.id.vp);
+        vp= (ViewPager) content.findViewById(R.id.vp);
         fragmentList=new ArrayList<>();
         fragment1=new Fragment1();
         fragment2=new Fragment2();
@@ -142,14 +151,16 @@ public class MainActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
         Log.e("tianbin","=========onConfigurationChanged===========");
 
-        setContentView(R.layout.activity_main);//重新设置布局后fragment中的改变不起作用
-        tv1 = (TextView) findViewById(R.id.tv1);
-        tv2 = (TextView) findViewById(R.id.tv2);
-        tv3 = (TextView) findViewById(R.id.tv3);
-        vp= (ViewPager) findViewById(R.id.vp);
+        View content=inflater.inflate(R.layout.activity_main,null);
+        frameLayout.removeAllViewsInLayout();
+        frameLayout.addView(content,new FrameLayout.LayoutParams(-1,-1));
+//        setContentView(R.layout.activity_main);//重新设置布局后fragment中的改变不起作用
+        tv1 = (TextView) content.findViewById(R.id.tv1);
+        tv2 = (TextView) content.findViewById(R.id.tv2);
+        tv3 = (TextView) content.findViewById(R.id.tv3);
+        vp= (ViewPager) content.findViewById(R.id.vp);
 
         vp.setAdapter(adapter);
-        vp.invalidate();
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // 针对横屏做一些处理
